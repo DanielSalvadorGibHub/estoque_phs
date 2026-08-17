@@ -3062,7 +3062,7 @@ function totalPecas(c) { return c.itens.reduce((a, i) => a + (i.qtd || 1), 0); }
 /* ---------- etiquetas ---------- */
 function etiquetaCaixa(c, seq, de) {
   const ARCO = ['#E8402A', '#F58220', '#F5C518', '#4CAF50', '#2BB8D9', '#3B62E0'];
-  const eq = c.tipo === 'EQUIPAMENTOS';
+  const eq = (c.tipo === 'EQUIPAMENTOS' || c.tipo === 'RECUPERADOS');
   const linhas = c.itens.slice(0, 22);
   return `<div class="et et-caixa">
     <div class="arco">${ARCO.map(x => `<i style="background:${x}"></i>`).join('')}</div>
@@ -3113,7 +3113,7 @@ function etiquetaFonte(f) {
     </div></div>`;
 }
 function listaConferencia(c) {
-  const eq = c.tipo === 'EQUIPAMENTOS';
+  const eq = (c.tipo === 'EQUIPAMENTOS' || c.tipo === 'RECUPERADOS');
   return `<div class="et-lista">
     <h1>Lista de conferência — caixa ${esc(c.num)}</h1>
     <div class="sub">Para: ${esc(c.destino)} &nbsp;·&nbsp; De: ${esc(DB.cfg.unidade || '')} &nbsp;·&nbsp; ${br(c.data)}
@@ -3177,6 +3177,7 @@ function vMatriz() {
 
   <div class="card" style="margin-bottom:16px"><div class="hd"><h3>Nova remessa</h3><div class="sp"></div>
     <button class="btn sm" onclick="galeriaEtiquetas()">Ver modelos de etiqueta</button>
+    <button class="btn sm" onclick="novaCaixa('RECUPERADOS')">Caixa de recuperados</button>
     <button class="btn sm" onclick="novaCaixa('FONTES')">Caixa de fontes</button>
     <button class="btn sm" onclick="novaCaixa('DIVERSOS')">Caixa diversos</button>
     <button class="btn sm a" onclick="novaCaixa('EQUIPAMENTOS')">Caixa de equipamentos</button></div>
@@ -3252,7 +3253,7 @@ function editarCaixa(id) {
         <button class="btn a" onclick="addDiverso('${id}')">Adicionar</button></div>`;
     }
   }
-  const eq = c.tipo === 'EQUIPAMENTOS';
+  const eq = (c.tipo === 'EQUIPAMENTOS' || c.tipo === 'RECUPERADOS');
   modal(`Caixa ${c.num} · ${c.tipo.toLowerCase()}`, `
     <div class="row" style="margin-bottom:14px">
       <div class="f"><label class="fl">Destino</label><input value="${esc(c.destino)}" ${bloqueada ? 'disabled' : ''} onchange="caixaDe('${id}').destino=this.value.toUpperCase();save()"></div>
@@ -3414,7 +3415,7 @@ function nomeItem(i) { return i.desc || i.modelo || 'ITEM'; }
 
 /* ---------- papel 1 ---------- */
 function etiquetaCapa(c, seq, de) {
-  const eq = c.tipo === 'EQUIPAMENTOS';
+  const eq = (c.tipo === 'EQUIPAMENTOS' || c.tipo === 'RECUPERADOS');
   return `<div class="et et-capa">
     <div class="arco">${ARCO6.map(x => `<i style="background:${x}"></i>`).join('')}</div>
     <div class="rot">Destinatário</div>
@@ -3500,7 +3501,7 @@ function editarCaixa(id) {
   if (!c.cod) c.cod = 'mac';
   const bloqueada = c.status !== 'ABERTA';
   const disp = DB.equip.filter(e => !emAlgumaCaixa(e.id) && etapaDe(e) !== 'ENVIADO');
-  const eq = c.tipo === 'EQUIPAMENTOS';
+  const eq = (c.tipo === 'EQUIPAMENTOS' || c.tipo === 'RECUPERADOS');
   let adicionar = '';
   if (!bloqueada) {
     if (eq) {
@@ -3650,6 +3651,7 @@ function vMatriz() {
   </div>
   <div class="card" style="margin-bottom:16px"><div class="hd"><h3>Nova remessa</h3><div class="sp"></div>
     <button class="btn sm" onclick="galeriaEtiquetas()">Ver modelos de etiqueta</button>
+    <button class="btn sm" onclick="novaCaixa('RECUPERADOS')">Caixa de recuperados</button>
     <button class="btn sm" onclick="novaCaixa('FONTES')">Caixa de fontes</button>
     <button class="btn sm" onclick="novaCaixa('DIVERSOS')">Caixa diversos</button>
     <button class="btn sm a" onclick="novaCaixa('EQUIPAMENTOS')">Caixa de equipamentos</button></div>
@@ -3853,7 +3855,7 @@ const dataFecho = c => c.fechadaEm || c.data;
 
 /* ---------- papel 1: capa ---------- */
 function etiquetaCapa(c, seq, de) {
-  const eq = c.tipo === 'EQUIPAMENTOS';
+  const eq = (c.tipo === 'EQUIPAMENTOS' || c.tipo === 'RECUPERADOS');
   return `<div class="et et-capa">
     <div class="arco">${ARCO6.map(x => `<i style="background:${x}"></i>`).join('')}</div>
     <div class="rot">Destinatário</div>
@@ -3920,7 +3922,7 @@ function etiquetaConteudo(c, itens, pag, tot, offset) {
   </div>`;
 }
 function listaConferencia(c) {
-  const eq = c.tipo === 'EQUIPAMENTOS';
+  const eq = (c.tipo === 'EQUIPAMENTOS' || c.tipo === 'RECUPERADOS');
   return `<div class="et-lista">
     <h1>Lista de conferência — caixa ${esc(c.num)}</h1>
     <div class="sub"><b>De:</b> ${esc(DB.cfg.remetente)} &nbsp;·&nbsp; <b>Para:</b> ${esc(c.destino)}
@@ -3975,7 +3977,7 @@ function editarCaixa(id) {
   if (!c.cod) c.cod = 'mac';
   const bloqueada = c.status !== 'ABERTA';
   const disp = DB.equip.filter(e => !emAlgumaCaixa(e.id) && etapaDe(e) !== 'ENVIADO');
-  const eq = c.tipo === 'EQUIPAMENTOS';
+  const eq = (c.tipo === 'EQUIPAMENTOS' || c.tipo === 'RECUPERADOS');
   const prods = produtosDirect();
   let adicionar = '';
   if (!bloqueada) {
@@ -4648,7 +4650,7 @@ function imprimir(html) {
 
 /* ---------- papel 1: capa, sem número de caixa e sem nota fiscal ---------- */
 function etiquetaCapa(c, seq, de) {
-  const eq = c.tipo === 'EQUIPAMENTOS';
+  const eq = (c.tipo === 'EQUIPAMENTOS' || c.tipo === 'RECUPERADOS');
   return `<div class="et et-capa">
     <div class="arco">${ARCO6.map(x => `<i style="background:${x}"></i>`).join('')}</div>
     <div class="rot">Destinatário</div>
@@ -4713,7 +4715,7 @@ function etiquetaConteudo(c, itens, pag, tot, offset) {
 
 /* ---------- lista de conferência ---------- */
 function listaConferencia(c) {
-  const eq = c.tipo === 'EQUIPAMENTOS';
+  const eq = (c.tipo === 'EQUIPAMENTOS' || c.tipo === 'RECUPERADOS');
   return `<div class="et-lista">
     <h1>Lista de conferência</h1>
     <div class="sub"><b>De:</b> ${esc(DB.cfg.remetente)} &nbsp;·&nbsp; <b>Para:</b> ${esc(c.destino)}
@@ -5949,6 +5951,438 @@ function corPill() { return { bg: 'transparent', tx: 'inherit' }; }
 /* a estética deixa de ser escolha: um sistema, uma identidade */
 function seletorTema() { return ''; }
 aplicarTema('chamber', false);
+render();
+</script>
+
+<style>
+/* =====================================================================
+   CAMADA 18 — 25 por folha, caixa de recuperados, responsável e checklist
+   ===================================================================== */
+/* folha de conteúdo compactada para caber 25 equipamentos */
+/* 25 linhas em 210mm dão 8,4mm cada: tudo abaixo foi medido para caber */
+.et-cont .li{gap:5mm;padding:.8mm 0!important;border-bottom:.4pt solid #999;min-height:7.6mm}
+.et-cont .li .n{font-size:8pt!important;width:7mm;flex:0 0 7mm}
+.et-cont .li .tx b{font-size:8pt!important;line-height:1.1}
+.et-cont .li .tx .mac{font-size:9pt!important;margin-top:.2mm;line-height:1.1}
+.et-cont .li .tx .ex{display:none}
+.et-cont .li .cb{width:98mm!important;flex:0 0 98mm!important}
+.et-cont .rem{margin:-13mm -13mm 5mm!important;padding:3.5mm 13mm!important}
+.et-cont .rem b{font-size:17pt!important}
+.et-cont .ch{padding-bottom:2.5mm;margin-bottom:3mm}
+.et-cont .ch h2{font-size:16pt!important}
+.et-cont .rod{padding-top:3mm;border-top:2.5pt solid #000}
+.et-cont .rod .tt b{font-size:44pt!important}
+
+/* campo do responsável, presente em todas as etiquetas */
+.et .resp{border:2pt solid #000;padding:2.5mm 3mm;display:flex;align-items:baseline;gap:3mm;margin-top:3mm}
+.et .resp .r{font-size:8pt;letter-spacing:.24em;text-transform:uppercase;color:#444;white-space:nowrap}
+.et .resp b{font-family:'Archivo',Arial,sans-serif;font-weight:800;font-size:15pt;text-transform:uppercase;letter-spacing:-.01em}
+.et-cont .resp{margin-top:0;margin-bottom:3mm;padding:2mm 3mm}
+.et-cont .resp b{font-size:12pt}
+
+/* checklist dos recuperados */
+.et-check{width:210mm;min-height:297mm;background:#fff;color:#000;padding:13mm;
+  font-family:'IBM Plex Sans',Arial,sans-serif;box-sizing:border-box;display:flex;flex-direction:column}
+.et-check .ch-h{border-bottom:3pt solid #000;padding-bottom:3.5mm;margin-bottom:4mm}
+.et-check h1{font-family:'Archivo',Arial,sans-serif;font-weight:800;font-size:21pt;margin:0;
+  text-transform:uppercase;letter-spacing:-.03em;line-height:1.05}
+.et-check .mod{font-family:'Archivo',Arial,sans-serif;font-weight:800;font-size:15pt;text-transform:uppercase;
+  background:#000;color:#fff;display:inline-block;padding:1.5mm 4mm;margin-top:2.5mm}
+.et-check .meta{font-size:9.5pt;color:#333;margin-top:3mm;line-height:1.5}
+.et-check table{width:100%;border-collapse:collapse;font-size:8.5pt;table-layout:fixed}
+.et-check th{border:.6pt solid #000;padding:1mm;background:#eee;color:#000;position:static;font-size:7pt;
+  text-transform:uppercase;letter-spacing:.04em;vertical-align:bottom;font-weight:700}
+.et-check th.gira{height:30mm;width:9mm;padding:1mm .5mm}
+.et-check th.gira span{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;display:block;margin:0 auto}
+.et-check td{border:.6pt solid #777;padding:1.5mm 1mm;color:#000;height:7.5mm}
+.et-check td.bx{text-align:center;background:#fcfcfc}
+.et-check .num{width:8mm;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:8pt;color:#555}
+.et-check .mono{font-family:'IBM Plex Mono',monospace;font-size:8.5pt}
+.et-check .rod{margin-top:auto;padding-top:5mm;border-top:2.5pt solid #000;display:flex;gap:10mm;align-items:flex-end}
+.et-check .ass{flex:1;border-top:.8pt solid #000;padding-top:1.5mm;font-size:8pt;text-align:center;margin-top:14mm}
+.et-check .leg{font-size:7.5pt;color:#444;line-height:1.5;margin-top:3mm}
+</style>
+<script>
+/* ---------- tipos de caixa ---------- */
+if (!TIPO_CAIXA.includes('RECUPERADOS')) TIPO_CAIXA.splice(1, 0, 'RECUPERADOS');
+const ehSerie = c => c && (c.tipo === 'EQUIPAMENTOS' || c.tipo === 'RECUPERADOS');
+const ehRecup = c => c && c.tipo === 'RECUPERADOS';
+function porPagina(c) { return 25; }
+
+/* modelo predominante da caixa, para o título dos recuperados */
+function modeloDaCaixa(c) {
+  if (c.modelo) return c.modelo;
+  const cont = {};
+  (c.itens || []).forEach(i => { const n = nomeItem(i); cont[n] = (cont[n] || 0) + 1; });
+  const l = Object.entries(cont).sort((a, b) => b[1] - a[1]);
+  return l.length ? l[0][0] : '';
+}
+function respDaCaixa(c) { return (c && c.responsavel) || DB.cfg.responsavel || ''; }
+function blocoResp(c) {
+  return `<div class="resp"><span class="r">Responsável pela caixa</span><b>${esc(respDaCaixa(c) || '—')}</b></div>`;
+}
+
+/* ---------- checklist editável ---------- */
+const CHECK_PADRAO = ['Limpeza externa', 'Carcaça sem avaria', 'Reset de fábrica', 'Firmware atualizado',
+  'Portas LAN testadas', 'Sinal óptico testado', 'Wi-Fi testado', 'Etiqueta legível'];
+function checklist() {
+  if (!Array.isArray(DB.checklist) || !DB.checklist.length) { DB.checklist = CHECK_PADRAO.slice(); save(); }
+  return DB.checklist;
+}
+function editarChecklist() {
+  modal('Checklist dos equipamentos recuperados', `
+    <p style="margin-top:0;font-size:12.5px;color:var(--txt-2)">
+      Cada item vira uma coluna na folha de conferência, com um quadrado por equipamento para você marcar à mão.
+      Até 8 colunas cabem bem numa A4; acima disso as colunas ficam estreitas demais.</p>
+    <div class="row" style="margin-bottom:12px"><input id="ckNovo" placeholder="Novo item de verificação" style="flex:1"
+      onkeydown="if(event.key==='Enter')addCheck()"><button class="btn a" onclick="addCheck()">Adicionar</button></div>
+    <div id="ckLista">${listaCheck()}</div>`,
+    `<button class="btn" onclick="DB.checklist=(typeof CHECK_RECUP!=='undefined'?CHECK_RECUP:CHECK_PADRAO).slice();save();$('#ckLista').innerHTML=listaCheck()">Restaurar padrão</button>`, 620);
+}
+function listaCheck() {
+  const l = checklist();
+  return `<div style="border:1px solid var(--line);border-radius:var(--r)">
+    ${l.map((c, i) => `<div class="row" style="padding:7px 12px;border-bottom:1px solid var(--line-2)">
+      <span class="mono" style="color:var(--txt-3);width:20px">${i + 1}</span>
+      <span style="flex:1">${esc(c)}</span>
+      ${i > 7 ? '<span class="tag t-w">passa de 8</span>' : ''}
+      <button class="btn xs dg" onclick="DB.checklist.splice(${i},1);save();$('#ckLista').innerHTML=listaCheck()">remover</button>
+    </div>`).join('')}</div>
+    <div style="font-size:12px;color:var(--txt-2);margin-top:8px">${l.length} colunas na folha</div>`;
+}
+function addCheck() {
+  const v = $('#ckNovo').value.trim(); if (!v) return;
+  checklist().push(v); save(); $('#ckNovo').value = ''; $('#ckLista').innerHTML = listaCheck(); $('#ckNovo').focus();
+}
+
+/* ---------- folha de checklist ---------- */
+function folhaChecklist(c, itens, pag, tot, offset) {
+  const ck = checklist();
+  const l = itens || c.itens;
+  return `<div class="et et-check">
+    <div class="ch-h">
+      <h1>Equipamentos recuperados</h1>
+      <div class="mod">${esc(modeloDaCaixa(c) || 'MODELO NÃO INFORMADO')}</div>
+      <div class="meta">
+        <b>Remetente:</b> ${esc(DB.cfg.remetente)} &nbsp;·&nbsp;
+        <b>Destino:</b> ${esc(c.destino)}<br>
+        <b>Caixa fechada em:</b> ${br(dataFecho(c))}${c.fechadaHora ? ' às ' + c.fechadaHora : ''} &nbsp;·&nbsp;
+        <b>Total:</b> ${totalPecas(c)} equipamentos${tot > 1 ? ` &nbsp;·&nbsp; <b>Folha</b> ${pag}/${tot}` : ''}
+      </div>
+    </div>
+    ${blocoResp(c)}
+    <table><thead><tr>
+      <th class="num">#</th>
+      <th style="width:auto">Equipamento</th>
+      <th style="width:34mm">MAC / Serial</th>
+      ${ck.map(x => `<th class="gira"><span>${esc(x)}</span></th>`).join('')}
+    </tr></thead><tbody>
+      ${l.length ? l.map((i, n) => `<tr>
+        <td class="num">${String((offset || 0) + n + 1).padStart(2, '0')}</td>
+        <td>${esc(nomeItem(i))}</td>
+        <td class="mono">${esc(i.mac || i.serial || '—')}</td>
+        ${ck.map(() => '<td class="bx"></td>').join('')}
+      </tr>`).join('')
+      : `<tr><td colspan="${3 + ck.length}" style="text-align:center;padding:8mm;color:#666">Caixa sem equipamentos.</td></tr>`}
+    </tbody></table>
+    <div class="leg">
+      Marque cada quadrado conforme a verificação for concluída. Equipamento com qualquer item em branco
+      não deve seguir para a matriz.
+    </div>
+    <div class="rod">
+      <div class="ass">Recuperado e conferido por — ${esc(respDaCaixa(c))}</div>
+      <div class="ass">Conferido no recebimento</div>
+    </div>
+  </div>`;
+}
+function paginasChecklist(c) {
+  const pgs = paginasDe(c), tot = pgs.length;
+  let off = 0;
+  return pgs.map((itens, i) => { const h = folhaChecklist(c, itens, i + 1, tot, off); off += itens.length; return h; }).join('');
+}
+
+/* ---------- capa com título de recuperados e responsável ---------- */
+function etiquetaCapa(c, seq, de) {
+  const rec = ehRecup(c), serie = ehSerie(c);
+  return `<div class="et et-capa">
+    <div class="arco">${ARCO6.map(x => `<i style="background:${x}"></i>`).join('')}</div>
+    <div class="rot">Destinatário</div>
+    <div class="para">${esc(c.destino)}</div>
+    <div class="tipo">${rec ? 'EQUIPAMENTOS RECUPERADOS' : esc(c.tipo)}</div>
+    ${rec ? `<div style="font-family:'Archivo',Arial,sans-serif;font-weight:800;font-size:26pt;
+      text-transform:uppercase;letter-spacing:-.02em;line-height:1.05;margin:-6mm 0 9mm">${esc(modeloDaCaixa(c) || '—')}</div>` : ''}
+    <div class="remet"><div class="r">Remetente</div><b>${esc(DB.cfg.remetente)}</b></div>
+    <div class="meta">
+      <div style="flex:1.6">${c.fechadaEm ? 'Caixa fechada em' : 'Aberta em'}<b>${br(dataFecho(c))}</b></div>
+      <div>Volume<b>${seq || 1}/${de || 1}</b></div>
+    </div>
+    <div class="qtd">
+      <b>${totalPecas(c)}</b>
+      <span>${serie ? 'equipamentos na caixa' : 'peças na caixa'}</span>
+    </div>
+    ${blocoResp(c)}
+    ${c.obs ? `<div class="obs"><b>Atenção:</b> ${esc(c.obs)}</div>` : ''}
+    <div class="de">
+      ${DB.cfg.unidade ? '<b>Unidade:</b> ' + esc(DB.cfg.unidade) + '<br>' : ''}
+      <b>Conferência:</b> ${rec ? 'folha de conteúdo e checklist de recuperação' : 'folha de conteúdo'} colada ao lado desta etiqueta.
+    </div>
+  </div>`;
+}
+
+/* ---------- conteúdo com responsável ---------- */
+function etiquetaConteudo(c, itens, pag, tot, offset) {
+  formatoA4(c);
+  const modo = c.cod || 'mac';
+  return `<div class="et et-cont a4">
+    <div class="rem">
+      <div><span>Remetente</span><b>${esc(DB.cfg.remetente)}</b></div>
+      <div class="dt">Caixa fechada em<br><b>${br(dataFecho(c))}${c.fechadaHora ? ' · ' + c.fechadaHora : ''}</b></div>
+    </div>
+    <div class="ch">
+      <h2>Conteúdo da caixa${ehRecup(c) ? ' · recuperados' : ''}</h2>
+      ${tot > 1 ? `<div class="p">página ${pag}/${tot}</div>` : ''}
+    </div>
+    ${blocoResp(c)}
+    <div class="linhas">
+      ${itens.length ? itens.map((i, n) => {
+        const cod = codigoItem(i, modo);
+        return `<div class="li">
+          <div class="n">${String((offset || 0) + n + 1).padStart(2, '0')}</div>
+          <div class="tx">
+            <b>${esc(nomeItem(i))}</b>
+            <div class="mac">${esc(rotuloItem(i))}${i.serial && i.mac ? ` <span style="font-size:7.5pt;color:#555">· ${esc(i.serial)}</span>` : ''}${i.qtd > 1 ? ` <span style="font-size:7.5pt;color:#555">· ${i.qtd} un</span>` : ''}</div>
+          </div>
+          <div class="cb">${cod ? barras(cod, 6) : '<div style="font-size:8pt;color:#999;text-align:center">sem código</div>'}</div>
+        </div>`;
+      }).join('') : '<div style="font-size:11pt;color:#666;padding:10mm 0">Caixa sem itens.</div>'}
+    </div>
+    <div class="rod">
+      <div class="cx">${esc(DB.cfg.remetente)}<br>para ${esc(c.destino)}<br>${br(dataFecho(c))}</div>
+      <div class="tt"><b>${totalPecas(c)}</b><span>${ehSerie(c) ? 'equipamentos' : 'peças'} no total</span></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- lista de conferência com responsável ---------- */
+function listaConferencia(c) {
+  const serie = ehSerie(c);
+  return `<div class="et et-lista">
+    <h1>Lista de conferência${ehRecup(c) ? ' · recuperados' : ''}</h1>
+    <div class="sub"><b>De:</b> ${esc(DB.cfg.remetente)} &nbsp;·&nbsp; <b>Para:</b> ${esc(c.destino)}
+      &nbsp;·&nbsp; <b>Responsável:</b> ${esc(respDaCaixa(c))}
+      &nbsp;·&nbsp; <b>Fechada em:</b> ${br(dataFecho(c))}${c.fechadaHora ? ' às ' + c.fechadaHora : ''}
+      &nbsp;·&nbsp; ${c.itens.length} itens / ${totalPecas(c)} peças</div>
+    ${ehRecup(c) ? `<p style="font-size:10pt;margin:0 0 4mm"><b>Modelo:</b> ${esc(modeloDaCaixa(c))}</p>` : ''}
+    <table><thead><tr><th style="width:8mm">#</th>
+      ${serie ? '<th>Equipamento (nome no sistema)</th><th style="width:32mm">Serial</th><th style="width:36mm">MAC</th><th style="width:12mm">OK</th>'
+              : '<th>Item</th><th style="width:30mm">Especificação</th><th style="width:18mm">Quantidade</th><th style="width:12mm">OK</th>'}
+    </tr></thead><tbody>
+    ${c.itens.map((i, n) => serie ? `<tr><td>${n + 1}</td>
+        <td>${esc(nomeItem(i))}</td><td style="font-family:monospace">${esc(i.serial || '—')}</td>
+        <td style="font-family:monospace">${esc(i.mac || '—')}</td><td></td></tr>`
+      : `<tr><td>${n + 1}</td><td>${esc(i.modelo || i.desc || '')}</td>
+        <td>${i.volts ? esc(i.volts) + 'V / ' + esc(i.amps) + 'A' : esc(i.cod || '—')}</td>
+        <td>${i.qtd || 1}</td><td></td></tr>`).join('')}
+    </tbody></table>
+    ${c.obs ? `<p style="font-size:8pt;margin-top:4mm"><b>Observação:</b> ${esc(c.obs)}</p>` : ''}
+    <div class="ass"><div>Separado por — ${esc(respDaCaixa(c))} · ${esc(DB.cfg.remetente)}</div><div>Conferido no recebimento</div></div>
+  </div>`;
+}
+
+/* ---------- impressão ---------- */
+function imprimirCaixa(id) {
+  const c = caixaDe(id); if (!c) return;
+  imprimir(etiquetaCapa(c, 1, 1) + paginasConteudo(c) + (ehRecup(c) ? paginasChecklist(c) : ''));
+}
+function imprimirChecklist(id) {
+  const c = caixaDe(id); if (!c) return;
+  if (!c.itens.length) return toast('A caixa está vazia.', 'e');
+  imprimir(paginasChecklist(c));
+}
+function folhasDaCaixa(c) { return 1 + paginasDe(c).length + (ehRecup(c) ? paginasDe(c).length : 0); }
+</script>
+
+<script>
+/* guarda o editor atual ANTES da redeclaração do bloco seguinte.
+   Num mesmo <script> a declaração já estaria içada e capturaria a si mesma. */
+window.__editarBase = editarCaixa;
+</script>
+<script>
+/* =====================================================================
+   CAMADA 19 — campos de responsável e modelo no editor, caixa de recuperados
+   ===================================================================== */
+function novaCaixa(tipo) {
+  const num = 'CX' + hoje().replace(/-/g, '').slice(2) + '-' + String(DB.caixas.filter(c => c.data === hoje()).length + 1).padStart(2, '0');
+  const c = { id: uid(), num, tipo: tipo || 'EQUIPAMENTOS', data: hoje(), destino: DB.cfg.matriz,
+    status: 'ABERTA', itens: [], obs: '', nf: '', formato: 'a4', cod: 'mac',
+    responsavel: DB.cfg.responsavel || '', modelo: '' };
+  DB.caixas.unshift(c); save(); render();
+  editarCaixa(c.id);
+}
+function setResp(id, v) { const c = caixaDe(id); if (!c) return; c.responsavel = v.toUpperCase(); save(); }
+function setModelo(id, v) { const c = caixaDe(id); if (!c) return; c.modelo = v.toUpperCase(); save(); editarCaixa(id); }
+
+/* o editor anterior foi guardado no bloco acima, antes desta redeclaração */
+function editarCaixa(id) {
+  window.__editarBase(id);
+  const c = caixaDe(id); if (!c) return;
+  const box = document.querySelector('.modal .box'); if (!box) return;
+  const bd = box.querySelector('.bd'), ft = box.querySelector('.ft');
+  const rec = ehRecup(c), prods = produtosDirect();
+
+  /* linha com responsável e, nos recuperados, o modelo */
+  const linha = document.createElement('div');
+  linha.className = 'row';
+  linha.style.margin = '0 0 14px';
+  linha.innerHTML = `
+    <div class="f" style="max-width:260px"><label class="fl">Responsável pela caixa</label>
+      <input id="cxResp" value="${esc(respDaCaixa(c))}" placeholder="quem montou esta caixa"
+        oninput="this.value=this.value.toUpperCase()" onchange="setResp('${id}',this.value);editarCaixa('${id}')"></div>
+    ${rec ? `<div class="f" style="max-width:340px"><label class="fl">Modelo recuperado (sai no título)</label>
+      <input id="cxModelo" list="listaDirect2" value="${esc(c.modelo || '')}" placeholder="${esc(modeloDaCaixa(c) || 'escolha o modelo')}"
+        onchange="setModelo('${id}',this.value)">
+      <datalist id="listaDirect2">${prods.map(p => `<option value="${esc(p.desc)}">`).join('')}</datalist></div>` : ''}
+    <div class="f" style="align-self:flex-end">
+      <span class="tag t-a">A4 · ${folhasDaCaixa(c)} folhas ao todo</span>
+      <span class="tag t-n">25 equipamentos por folha</span>
+      ${rec ? `<span class="tag t-i">inclui checklist</span>` : ''}
+    </div>`;
+  bd.insertBefore(linha, bd.firstChild);
+
+  /* botão do checklist e prévia, só nos recuperados */
+  if (rec && ft) {
+    const b = document.createElement('button');
+    b.className = 'btn';
+    b.textContent = 'Checklist';
+    b.onclick = () => imprimirChecklist(id);
+    ft.insertBefore(b, ft.firstChild);
+    const grid = bd.querySelector('.grid.g2');
+    if (grid) {
+      const col = document.createElement('div');
+      col.style.gridColumn = '1 / -1';
+      col.innerHTML = `<div class="fl" style="margin:12px 0 8px">Papel 3 — checklist de recuperação (A4)
+        <button class="btn xs" style="margin-left:8px" onclick="editarChecklist()">editar itens</button></div>
+        ${previa(folhaChecklist(c, paginasDe(c)[0], 1, paginasDe(c).length, 0), .34)}`;
+      grid.appendChild(col);
+    }
+  }
+}
+Object.assign(VFN, {});
+render();
+</script>
+
+<style>
+/* =====================================================================
+   CAMADA 20 — checklist de recuperação e etiqueta de fonte enxuta
+   ===================================================================== */
+/* checklist: 5 perguntas, colunas largas e quadrado de verdade para marcar */
+.et-check th.gira{height:27mm;width:17mm;padding:1.5mm .5mm;background:#f4f4f4}
+.et-check th.gira span{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;
+  font-size:8.5pt;font-weight:800;letter-spacing:.02em;display:block;margin:0 auto}
+.et-check td.bx{background:#fff;padding:1mm;vertical-align:middle}
+.et-check td.bx i{display:block;width:5.6mm;height:5.6mm;border:1.5pt solid #000;margin:0 auto}
+.et-check tbody tr:nth-child(even) td{background:#fafafa}
+.et-check tbody tr:nth-child(even) td.bx{background:#fff}
+.et-check td{height:7.6mm;padding:1mm}
+.et-check .mod{letter-spacing:.02em}
+.et-check .aviso{border:2pt solid #000;padding:2.5mm 3mm;font-size:8.5pt;margin-top:3mm;line-height:1.45}
+
+/* fonte: só a especificação, a origem e quem separou */
+.et-fonte{width:70mm;height:37mm;border:.6pt dashed #bbb;padding:3mm;background:#fff;color:#000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-sizing:border-box}
+.et-fonte .v{font-family:'Archivo',Arial,sans-serif;font-weight:800;font-size:30pt;line-height:.95;letter-spacing:-.045em}
+.et-fonte .v em{font-style:normal;font-size:19pt;margin-left:2mm;color:#222}
+.et-fonte .rule{width:34mm;height:1.6pt;background:#000;margin:2.2mm 0}
+.et-fonte .org{font-family:'Archivo',Arial,sans-serif;font-weight:800;font-size:10.5pt;
+  text-transform:uppercase;letter-spacing:.04em;line-height:1.1}
+.et-fonte .resp{font-size:6.8pt;color:#333;margin-top:1.4mm;line-height:1.3;letter-spacing:.02em}
+.et-fonte .resp b{font-size:7.8pt;display:block;text-transform:uppercase;letter-spacing:.03em}
+</style>
+<script>
+/* ---------- os cinco itens de verificação ---------- */
+/* CHECK_PADRAO já existe como const no bloco anterior: aqui vai outro nome */
+const CHECK_ANTIGO = ['Limpeza externa', 'Carcaça sem avaria', 'Reset de fábrica', 'Firmware atualizado',
+  'Portas LAN testadas', 'Sinal óptico testado', 'Wi-Fi testado', 'Etiqueta legível'];
+const CHECK_RECUP = ['Todos os LED acendem?', 'Conecta 2.4G?', 'Conecta 5G?', 'Teste em PON?', 'Atualização de firmware?'];
+/* quem já estava com a lista antiga recebe a nova */
+if (!Array.isArray(DB.checklist) || !DB.checklist.length || DB.checklist.join('|') === CHECK_ANTIGO.join('|')) {
+  DB.checklist = CHECK_RECUP.slice(); save();
+}
+function checklist() {
+  if (!Array.isArray(DB.checklist) || !DB.checklist.length) { DB.checklist = CHECK_RECUP.slice(); save(); }
+  return DB.checklist;
+}
+/* o checklist tem cabeçalho e assinaturas maiores: 18 linhas por folha */
+function porPaginaCheck() { return 18; }
+function paginasCheck(c) {
+  const n = porPaginaCheck(), p = [];
+  for (let i = 0; i < c.itens.length; i += n) p.push(c.itens.slice(i, i + n));
+  return p.length ? p : [[]];
+}
+function paginasChecklist(c) {
+  const pgs = paginasCheck(c), tot = pgs.length;
+  let off = 0;
+  return pgs.map((itens, i) => { const h = folhaChecklist(c, itens, i + 1, tot, off); off += itens.length; return h; }).join('');
+}
+function folhasDaCaixa(c) { return 1 + paginasDe(c).length + (ehRecup(c) ? paginasCheck(c).length : 0); }
+
+function folhaChecklist(c, itens, pag, tot, offset) {
+  const ck = checklist();
+  const l = itens || c.itens;
+  return `<div class="et et-check">
+    <div class="ch-h">
+      <h1>Equipamentos recuperados</h1>
+      <div class="mod">${esc(modeloDaCaixa(c) || 'MODELO NÃO INFORMADO')}</div>
+      <div class="meta">
+        <b>Remetente:</b> ${esc(DB.cfg.remetente)} &nbsp;·&nbsp;
+        <b>Destino:</b> ${esc(c.destino)}<br>
+        <b>Caixa fechada em:</b> ${br(dataFecho(c))}${c.fechadaHora ? ' às ' + c.fechadaHora : ''} &nbsp;·&nbsp;
+        <b>Total:</b> ${totalPecas(c)} equipamentos${tot > 1 ? ` &nbsp;·&nbsp; <b>Folha</b> ${pag}/${tot}` : ''}
+      </div>
+    </div>
+    ${blocoResp(c)}
+    <table><thead><tr>
+      <th class="num">#</th>
+      <th style="width:auto">Equipamento</th>
+      <th style="width:34mm">MAC / Serial</th>
+      ${ck.map(x => `<th class="gira"><span>${esc(x)}</span></th>`).join('')}
+    </tr></thead><tbody>
+      ${l.length ? l.map((i, n) => `<tr>
+        <td class="num">${String((offset || 0) + n + 1).padStart(2, '0')}</td>
+        <td>${esc(nomeItem(i))}</td>
+        <td class="mono">${esc(i.mac || i.serial || '—')}</td>
+        ${ck.map(() => '<td class="bx"><i></i></td>').join('')}
+      </tr>`).join('')
+      : `<tr><td colspan="${3 + ck.length}" style="text-align:center;padding:8mm;color:#666">Caixa sem equipamentos.</td></tr>`}
+    </tbody></table>
+    <div class="aviso">
+      <b>Equipamento só segue para a matriz com os ${ck.length} quadrados marcados.</b>
+      Qualquer item em branco significa recuperação incompleta — separe o aparelho e refaça o teste.
+    </div>
+    <div class="rod">
+      <div class="ass">Recuperado e conferido por — ${esc(respDaCaixa(c))}</div>
+      <div class="ass">Conferido no recebimento</div>
+    </div>
+  </div>`;
+}
+
+/* ---------- etiqueta de fonte: especificação, origem e responsável ---------- */
+function etiquetaFonte(f, c) {
+  const resp = (c && respDaCaixa(c)) || DB.cfg.responsavel || '';
+  return `<div class="et-fonte">
+    <div class="v">${esc(f.volts)}V <em>${esc(f.amps)}A</em></div>
+    <div class="rule"></div>
+    <div class="org">${esc(DB.cfg.remetente || 'ESTOQUE PINHAIS')}</div>
+    ${resp ? `<div class="resp">Separação e higienização<b>${esc(resp)}</b></div>` : ''}
+  </div>`;
+}
+function imprimirFontes(id) {
+  const c = caixaDe(id); if (!c) return;
+  const et = [];
+  c.itens.forEach(f => { for (let i = 0; i < (f.qtd || 1); i++) et.push(etiquetaFonte(f, c)); });
+  if (!et.length) return toast('Nenhuma fonte na caixa.', 'e');
+  imprimir(`<div class="folha-fontes">${et.join('')}</div>`);
+}
 render();
 </script>
 
