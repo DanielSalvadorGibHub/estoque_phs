@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#070A1C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<title>Pedido de Material</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --f-vermelho:#E8402A; --f-laranja:#F58220; --f-amarelo:#F5C518; --f-verde:#4CAF50;
+  --f-aqua:#2BB8D9; --f-azul:#3B62E0; --f-violeta:#8B4FD6; --f-rosa:#D8437F;
+
+  --ink:#070A1C; --ink-2:#0E1330; --ink-3:#1A2050;
+  --paper:#0A0E24; --card:#111634; --line:#242B5C; --line-2:#1A2048;
+  --txt:#F2EDE4; --txt-2:#A9AEC9; --txt-3:#6E7599;
+  --acc:#2BB8D9; --acc-d:#1A93B0; --acc-l:#12304A; --amb:#F5A623;
+  --ok:#3FD07D; --ok-bg:#0F2E22; --warn:#F5C518; --warn-bg:#332A0C;
+  --crit:#FF5C4D; --crit-bg:#3A1418; --info-bg:#141C42;
+  --r:10px; --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',system-ui,sans-serif;
+  --disp:'Archivo',system-ui,sans-serif;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --arco:linear-gradient(90deg,#E8402A,#F58220 18%,#F5C518 36%,#4CAF50 54%,#2BB8D9 72%,#3B62E0);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;overscroll-behavior-y:contain}
+body{
+  background:var(--paper);color:var(--txt);font-family:var(--sans);font-size:16px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;padding-bottom:calc(96px + var(--safe-b));
+  background-image:radial-gradient(660px 460px at 82% -6%,rgba(59,98,224,.24),transparent 62%),
+                   radial-gradient(460px 340px at -10% 12%,rgba(139,79,214,.16),transparent 62%);
+  background-attachment:fixed
+}
+button,input,select,textarea{font-family:inherit;font-size:16px;color:inherit}
+input,textarea,select{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--ink-2);color:var(--txt)}
+input::placeholder,textarea::placeholder{color:#5A6190}
+input:focus,textarea:focus,select:focus{border-color:var(--acc);outline:none;box-shadow:0 0 0 3px rgba(43,184,217,.18)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+::selection{background:rgba(43,184,217,.32)}
+
+.fiber{display:flex;height:3px}
+.fiber i{flex:1}
+header{
+  position:sticky;top:0;z-index:50;background:var(--ink);
+  padding-top:env(safe-area-inset-top,0px);overflow:hidden;border-bottom:1px solid var(--line-2)
+}
+/* arco espectral no canto, como no cartaz */
+header::before{
+  content:'';position:absolute;left:-86px;top:-70px;width:230px;height:230px;border-radius:50%;
+  background:conic-gradient(from 168deg,
+    var(--f-vermelho) 0deg 8deg,var(--f-laranja) 8deg 16deg,var(--f-amarelo) 16deg 24deg,
+    var(--f-verde) 24deg 32deg,var(--f-aqua) 32deg 40deg,var(--f-azul) 40deg 48deg,transparent 48deg);
+  -webkit-mask:radial-gradient(circle,transparent 96px,#000 97px,#000 126px,transparent 127px);
+  mask:radial-gradient(circle,transparent 96px,#000 97px,#000 126px,transparent 127px);
+  opacity:.85;pointer-events:none
+}
+.hbar{display:flex;align-items:center;gap:10px;padding:14px 16px;position:relative;z-index:1}
+.hbar h1{font-family:var(--disp);font-weight:800;font-size:19px;margin:0;letter-spacing:-.04em;flex:1;
+  text-transform:uppercase;color:#F2EDE4;line-height:1}
+.hbar .who{font-family:var(--mono);font-size:10px;color:var(--txt-3);text-align:right;line-height:1.35;text-transform:uppercase;letter-spacing:.08em}
+.hbar .who b{display:block;color:#F2EDE4;font-size:13px;font-family:var(--sans);letter-spacing:0;text-transform:none}
+.net{width:9px;height:9px;border-radius:50%;background:var(--ok);flex:0 0 9px;box-shadow:0 0 10px rgba(63,208,125,.8)}
+.net.off{background:var(--f-amarelo);box-shadow:0 0 10px rgba(245,197,24,.8)}
+
+.tabs{display:flex;background:var(--ink-2);position:sticky;top:0;z-index:49;border-top:1px solid var(--line-2)}
+.tabs button{
+  flex:1;background:none;border:none;color:var(--txt-3);padding:13px 4px;font-weight:700;font-size:12px;
+  border-bottom:3px solid transparent;cursor:pointer;position:relative;text-transform:uppercase;letter-spacing:.09em
+}
+.tabs button.on{color:#F2EDE4;border-bottom-color:var(--acc)}
+.tabs .bdg{position:absolute;top:7px;right:calc(50% - 36px);background:var(--f-vermelho);color:#fff;
+  font-size:10px;font-family:var(--mono);padding:1px 5px;border-radius:8px;font-weight:700}
+
+main{padding:14px}
+.card{background:var(--card);border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden}
+.card+.card{margin-top:12px}
+.card .hd{padding:13px 14px;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:8px;background:var(--ink-2)}
+.card .hd h2{font-family:var(--disp);font-size:13.5px;margin:0;font-weight:800;flex:1;text-transform:uppercase;letter-spacing:.03em;color:#F2EDE4}
+.card .bd{padding:14px}
+
+.fl{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.17em;text-transform:uppercase;color:var(--txt-3);margin-bottom:6px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);
+  background:var(--ink-2);color:var(--txt);padding:13px 16px;border-radius:var(--r);font-weight:600;cursor:pointer;min-height:50px
+}
+.btn.p{background:#F2EDE4;color:var(--ink);border-color:#F2EDE4}
+.btn.a{background:var(--acc);color:#04121B;border-color:var(--acc);font-weight:800;letter-spacing:.01em}
+.btn.a:active{background:var(--acc-d)}
+.btn.w{width:100%}
+.btn.sm{min-height:40px;padding:9px 12px;font-size:14px}
+.btn:disabled{opacity:.4}
+.btn.dg{color:var(--crit);border-color:#5A2028;background:transparent}
+
+.tag{display:inline-flex;align-items:center;font-family:var(--mono);font-size:10px;letter-spacing:.09em;
+  text-transform:uppercase;padding:4px 8px;border-radius:4px;font-weight:700;white-space:nowrap}
+.t-ok{background:var(--ok-bg);color:var(--ok)} .t-w{background:var(--warn-bg);color:var(--warn)}
+.t-c{background:var(--crit-bg);color:var(--crit)} .t-n{background:var(--ink-3);color:var(--txt-2)}
+.t-i{background:var(--info-bg);color:#7FA0FF} .t-a{background:var(--acc-l);color:#5AD8F5}
+
+.busca{position:sticky;top:46px;z-index:40;background:var(--paper);padding:12px 14px 8px;margin:-14px -14px 8px;
+  box-shadow:0 8px 16px -8px rgba(4,7,20,.9)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:9px 14px 2px;margin:0 -14px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);background:var(--ink-2);color:var(--txt-2);border-radius:20px;padding:8px 15px;font-size:13.5px;
+  white-space:nowrap;cursor:pointer;flex:0 0 auto}
+.chip.on{background:var(--acc);color:#04121B;border-color:var(--acc);font-weight:700}
+
+.item{display:flex;align-items:center;gap:10px;padding:13px 14px;border-bottom:1px solid var(--line-2);background:var(--card)}
+.item:last-child{border-bottom:none}
+.item .in{flex:1;min-width:0}
+.item .in b{display:block;font-size:14.5px;font-weight:600;line-height:1.3;color:var(--txt)}
+.item .in span{font-size:11.5px;color:var(--txt-3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.item.sel{background:linear-gradient(90deg,rgba(43,184,217,.16),transparent);box-shadow:inset 3px 0 0 var(--acc)}
+.step{display:flex;align-items:center;gap:2px;flex:0 0 auto}
+.step button{
+  width:42px;height:42px;border:1px solid var(--line);background:var(--ink-2);border-radius:var(--r);
+  font-size:22px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--txt-2)
+}
+.step button:active{background:var(--acc-l);color:var(--acc)}
+.step .q{width:48px;text-align:center;font-family:var(--mono);font-weight:700;font-size:17px;
+  padding:0;border:none;background:none;color:var(--txt)}
+.step .add{background:var(--acc);border-color:var(--acc);color:#04121B;width:auto;padding:0 18px;font-size:14px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.05em}
+
+.carrinho{
+  position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--ink);color:var(--txt);
+  padding:12px 14px calc(12px + var(--safe-b));display:flex;align-items:center;gap:12px;
+  box-shadow:0 -10px 30px rgba(4,7,20,.8);border-top:1px solid var(--line)
+}
+.carrinho::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:var(--arco)}
+.carrinho .n{font-family:var(--disp);font-size:24px;font-weight:800;line-height:1;color:#F2EDE4;letter-spacing:-.03em}
+.carrinho .l{font-size:10.5px;color:var(--txt-3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.12em;margin-top:2px}
+.carrinho button{flex:1;max-width:200px}
+
+.ped{border-left:4px solid var(--line);padding:13px 14px;border-bottom:1px solid var(--line-2);background:var(--card)}
+.ped.PENDENTE{border-left-color:var(--warn)}
+.ped.SEPARANDO{border-left-color:var(--f-azul)}
+.ped.PRONTO{border-left-color:var(--acc)}
+.ped.ENTREGUE{border-left-color:var(--amb)}
+.ped.CONFIRMADO{border-left-color:var(--ok);background:var(--ink-2)}
+.ped .top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.ped .top b{font-family:var(--mono);font-size:12.5px;color:var(--txt-2)}
+.ped ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;color:var(--txt-2)}
+
+.empty{padding:44px 20px;text-align:center;color:var(--txt-2)}
+.empty h3{font-family:var(--disp);font-size:17px;color:#F2EDE4;margin:0 0 8px;text-transform:uppercase;letter-spacing:-.01em}
+.empty p{margin:0 0 18px;font-size:14px}
+
+#toasts{position:fixed;left:14px;right:14px;bottom:calc(90px + var(--safe-b));z-index:200;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--ink);border:1px solid var(--line);color:var(--txt);padding:13px 16px;border-radius:var(--r);font-size:14px;font-weight:500;
+  box-shadow:0 12px 32px rgba(4,7,20,.75);border-left:4px solid var(--acc);animation:up .2s ease}
+.toast.e{border-left-color:var(--f-vermelho)} .toast.w{border-left-color:var(--f-amarelo)}
+@keyframes up{from{transform:translateY(10px);opacity:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.sheet{position:fixed;inset:0;background:rgba(4,7,20,.75);backdrop-filter:blur(6px);z-index:150;display:flex;align-items:flex-end}
+.sheet .box{background:var(--card);border-top:1px solid var(--line);width:100%;max-height:88vh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;
+  padding-bottom:var(--safe-b);animation:up .22s ease;overflow:hidden}
+.sheet .box .hd{padding:16px;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:10px}
+.sheet .box .hd h2{font-family:var(--disp);font-size:16px;margin:0;flex:1;text-transform:uppercase;letter-spacing:.02em;color:#F2EDE4}
+.sheet .box .bd{padding:16px;overflow:auto}
+.sheet .box .ft{padding:14px 16px;border-top:1px solid var(--line-2);display:flex;gap:10px;background:var(--ink-2)}
+.grab{width:38px;height:4px;background:var(--line);border-radius:2px;margin:9px auto 0}
+
+</style>
+</head>
+<body>
+<header>
+  <div class="fiber"><i style="background:#E8402A"></i><i style="background:#F58220"></i><i style="background:#F5C518"></i><i style="background:#4CAF50"></i><i style="background:#2BB8D9"></i><i style="background:#3B62E0"></i><i style="background:#8B4FD6"></i><i style="background:#D8437F"></i></div>
+  <div class="hbar">
+    <div class="net" id="net" title="conexão"></div>
+    <h1>Pedido de Material</h1>
+    <div class="who" id="who"></div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</header>
+<main id="app"></main>
+<div id="rodape"></div>
+<div id="sheet"></div>
+<div id="toasts"></div>
+<script>
+"use strict";
+/* =====================================================================
+   Aplicativo do técnico — pedido de material
+   Funciona sem sinal: o pedido fica na fila do celular e sobe sozinho.
+   ===================================================================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = s => String(s == null ? '' : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const uid = () => 'P' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 5).toUpperCase();
+const fmt = n => (Math.round(n * 100) / 100).toLocaleString('pt-BR');
+const agora = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 19); };
+const brDia = s => { if (!s) return ''; const p = String(s).slice(0, 10).split('-'); return `${p[2]}/${p[1]}`; };
+const brHora = s => String(s || '').slice(11, 16);
+
+const Store = (() => {
+  let mem = {}, ok = false;
+  try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); ok = true; } catch (e) {}
+  return { ok,
+    get(k, d) { try { const v = ok ? localStorage.getItem(k) : mem[k]; return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { const s = JSON.stringify(v); if (ok) { try { localStorage.setItem(k, s); } catch (e) {} } else mem[k] = s; } };
+})();
+
+let S = Object.assign({
+  url: '', tec: '', catalogo: { itens: [], tecnicos: [], atualizado: null },
+  cesto: {}, fila: [], pedidos: [], usos: {}, obs: '', aba: 'pedir', busca: '', cat: ''
+}, Store.get('tecapp', {}));
+const salvar = () => Store.set('tecapp', { url: S.url, tec: S.tec, catalogo: S.catalogo, cesto: S.cesto, fila: S.fila, pedidos: S.pedidos, usos: S.usos, obs: S.obs });
+
+function toast(msg, tipo) {
+  const d = document.createElement('div');
+  d.className = 'toast' + (tipo ? ' ' + tipo : '');
+  d.textContent = msg;
+  $('#toasts').appendChild(d);
+  setTimeout(() => { d.style.opacity = '0'; d.style.transition = 'opacity .3s'; setTimeout(() => d.remove(), 300); }, 3400);
+}
+
+/* ---------- rede ---------- */
+let online = navigator.onLine;
+function marcarRede() { $('#net').className = 'net' + (online ? '' : ' off'); }
+window.addEventListener('online', () => { online = true; marcarRede(); enviarFila(); });
+window.addEventListener('offline', () => { online = false; marcarRede(); });
+
+async function api(acao, corpo) {
+  if (!S.url) throw new Error('Aplicativo ainda não configurado.');
+  /* text/plain evita o preflight do CORS no Apps Script */
+  const r = await fetch(S.url, {
+    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(Object.assign({ acao }, corpo)), redirect: 'follow'
+  });
+  const t = await r.text();
+  let j; try { j = JSON.parse(t); } catch (e) { throw new Error('Resposta inesperada do servidor.'); }
+  if (!j.ok) throw new Error(j.erro || 'Falha no servidor.');
+  return j;
+}
+async function apiGet(params) {
+  if (!S.url) throw new Error('Aplicativo ainda não configurado.');
+  const q = new URLSearchParams(params).toString();
+  const r = await fetch(S.url + (S.url.includes('?') ? '&' : '?') + q, { redirect: 'follow' });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.erro || 'Falha no servidor.');
+  return j;
+}
+
+/* ---------- fila offline ---------- */
+let enviando = false;
+async function enviarFila() {
+  if (enviando || !S.fila.length || !online || !S.url) return;
+  enviando = true;
+  const restantes = [];
+  for (const p of S.fila) {
+    try { await api('pedido', p); }
+    catch (e) { restantes.push(p); }
+  }
+  const subiram = S.fila.length - restantes.length;
+  S.fila = restantes; salvar();
+  enviando = false;
+  if (subiram) { toast(`${subiram} pedido(s) enviado(s).`); await baixarPedidos(); }
+  render();
+}
+async function baixarPedidos() {
+  if (!online || !S.url || !S.tec) return;
+  try {
+    const j = await apiGet({ acao: 'pedidos', tecnico: S.tec });
+    S.pedidos = (j.pedidos || []).sort((a, b) => String(b.criado_em).localeCompare(String(a.criado_em)));
+    salvar(); render();
+  } catch (e) {}
+}
+async function baixarCatalogo(avisar) {
+  if (!online || !S.url) { if (avisar) toast('Sem conexão agora.', 'w'); return; }
+  try {
+    const j = await apiGet({ acao: 'catalogo' });
+    if (j.catalogo && j.catalogo.itens && j.catalogo.itens.length) {
+      S.catalogo = j.catalogo; salvar();
+      if (avisar) toast(`${j.catalogo.itens.length} materiais atualizados.`);
+      render();
+    } else if (avisar) toast('O almoxarifado ainda não publicou a lista de materiais.', 'w');
+  } catch (e) { if (avisar) toast(e.message, 'e'); }
+}
+
+/* ---------- cesto ---------- */
+const totalCesto = () => Object.values(S.cesto).reduce((a, b) => a + b, 0);
+const itensCesto = () => Object.entries(S.cesto).filter(([, q]) => q > 0)
+  .map(([k, q]) => { const i = S.catalogo.itens.find(x => x.k === k) || { k, desc: k, un: '' }; return { k, desc: i.desc, un: i.un, qtd: q }; });
+function mudarQtd(k, d) {
+  const q = Math.max(0, (S.cesto[k] || 0) + d);
+  if (q) S.cesto[k] = q; else delete S.cesto[k];
+  salvar(); render();
+}
+function porQtd(k, v) {
+  const q = Math.max(0, Math.round(parseFloat(String(v).replace(',', '.')) || 0));
+  if (q) S.cesto[k] = q; else delete S.cesto[k];
+  salvar();
+}
+function enviarPedido() {
+  const itens = itensCesto();
+  if (!itens.length) return toast('Escolha ao menos um material.', 'e');
+  if (!S.tec) return toast('Escolha seu nome primeiro.', 'e');
+  const p = { id: uid(), criado_em: agora(), tecnico: S.tec, itens, obs: S.obs || '' };
+  S.fila.push(p);
+  itens.forEach(i => S.usos[i.k] = (S.usos[i.k] || 0) + 1);
+  S.pedidos.unshift(Object.assign({ status: online ? 'ENVIANDO' : 'NA FILA' }, p));
+  S.cesto = {}; S.obs = '';
+  salvar(); fecharSheet(); S.aba = 'meus'; render();
+  toast(online ? 'Pedido enviado ao almoxarifado.' : 'Sem sinal: o pedido sobe assim que voltar.', online ? '' : 'w');
+  enviarFila();
+}
+async function confirmarRecebimento(id) {
+  if (!online) return toast('Precisa de conexão para confirmar.', 'w');
+  try {
+    await api('confirmar', { id });
+    toast('Recebimento confirmado. Isso substitui a ficha assinada.');
+    await baixarPedidos();
+  } catch (e) { toast(e.message, 'e'); }
+}
+function repetirPedido(id) {
+  const p = S.pedidos.find(x => x.id === id); if (!p) return;
+  p.itens.forEach(i => S.cesto[i.k] = (S.cesto[i.k] || 0) + i.qtd);
+  salvar(); S.aba = 'pedir'; render();
+  toast('Itens colocados no pedido. Ajuste o que precisar.');
+}
+</script>
+<script>
+/* =====================================================================
+   TELAS
+   ===================================================================== */
+const ABAS = [{ id: 'pedir', n: 'Pedir' }, { id: 'meus', n: 'Meus pedidos' }, { id: 'conf', n: 'Ajustes' }];
+
+function render() {
+  marcarRede();
+  $('#who').innerHTML = S.tec ? `<b>${esc(S.tec.split(' ')[0])}</b>${S.fila.length ? S.fila.length + ' na fila' : 'conectado'}` : '';
+  const pend = S.pedidos.filter(p => ['PRONTO', 'ENTREGUE'].includes(p.status)).length + S.fila.length;
+  $('#tabs').innerHTML = ABAS.map(a => `<button class="${S.aba === a.id ? 'on' : ''}" onclick="irAba('${a.id}')">${a.n}
+    ${a.id === 'meus' && pend ? `<span class="bdg">${pend}</span>` : ''}</button>`).join('');
+  if (!S.url || !S.tec) { $('#app').innerHTML = telaSetup(); $('#rodape').innerHTML = ''; return; }
+  $('#app').innerHTML = ({ pedir: telaPedir, meus: telaMeus, conf: telaConf }[S.aba] || telaPedir)();
+  $('#rodape').innerHTML = (S.aba === 'pedir' && totalCesto()) ? `
+    <div class="carrinho">
+      <div><div class="n">${totalCesto()}</div><div class="l">${itensCesto().length} materiais</div></div>
+      <div style="flex:1"></div>
+      <button class="btn a" onclick="abrirResumo()">Revisar pedido</button>
+    </div>` : '';
+}
+function irAba(a) { S.aba = a; salvar(); render(); window.scrollTo(0, 0); if (a === 'meus') baixarPedidos(); }
+
+/* ---------- primeiro acesso ---------- */
+function telaSetup() {
+  const tecs = S.catalogo.tecnicos || [];
+  return `<div class="card"><div class="hd"><h2>Primeiro acesso</h2></div><div class="bd">
+    ${!S.url ? `
+      <label class="fl">Endereço do almoxarifado</label>
+      <input id="setUrl" placeholder="cole aqui o link que o estoquista mandou" value="${esc(S.url)}" autocomplete="off">
+      <p style="font-size:13px;color:var(--txt-2);margin:8px 0 14px">É um link que termina em <span style="font-family:var(--mono)">/exec</span>. Você só faz isso uma vez.</p>
+      <button class="btn a w" onclick="salvarUrl()">Conectar</button>`
+    : `
+      <label class="fl">Quem é você?</label>
+      ${tecs.length ? `<select id="setTec">
+          <option value="">— escolha seu nome —</option>
+          ${tecs.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')}
+        </select>`
+        : `<input id="setTec" placeholder="Seu nome completo" oninput="this.value=this.value.toUpperCase()">
+           <p style="font-size:13px;color:var(--warn);margin:8px 0 0">Ainda não recebi a lista de técnicos do almoxarifado. Você pode digitar seu nome.</p>`}
+      <button class="btn a w" style="margin-top:14px" onclick="salvarTec()">Entrar</button>
+      <button class="btn w" style="margin-top:10px" onclick="baixarCatalogo(1)">Buscar lista de materiais</button>
+      <button class="btn w sm" style="margin-top:10px;border:none;color:var(--txt-2)" onclick="S.url='';salvar();render()">Trocar o endereço</button>`}
+  </div></div>`;
+}
+function salvarUrl() {
+  const v = $('#setUrl').value.trim();
+  if (!/^https:\/\/script\.google\.com\/.+\/exec/.test(v)) return toast('O link precisa terminar em /exec.', 'e');
+  S.url = v; salvar(); render(); baixarCatalogo(1);
+}
+function salvarTec() {
+  const v = ($('#setTec').value || '').trim().toUpperCase();
+  if (!v) return toast('Escolha ou digite seu nome.', 'e');
+  S.tec = v; salvar(); render(); baixarPedidos();
+}
+
+/* ---------- pedir ---------- */
+function telaPedir() {
+  const itens = S.catalogo.itens || [];
+  if (!itens.length) return `<div class="empty">
+    <h3>Lista de materiais ainda não chegou</h3>
+    <p>O almoxarifado precisa publicar a lista. Tente atualizar.</p>
+    <button class="btn a" onclick="baixarCatalogo(1)">Atualizar lista</button></div>`;
+  const cats = [...new Set(itens.map(i => i.cat).filter(Boolean))].sort();
+  const b = norm(S.busca);
+  const freq = Object.entries(S.usos).sort((a, b2) => b2[1] - a[1]).slice(0, 8).map(x => x[0]);
+  const lista = itens.filter(i => (!b || norm(i.desc).includes(b)) && (!S.cat || i.cat === S.cat));
+  const usados = !b && !S.cat && freq.length ? itens.filter(i => freq.includes(i.k)) : [];
+  return `
+  <div class="busca">
+    <input type="search" placeholder="Buscar material…" value="${esc(S.busca)}" oninput="S.busca=this.value;renderLista()" id="qb">
+    <div class="chips">
+      <span class="chip ${!S.cat ? 'on' : ''}" onclick="S.cat='';render()">Todos</span>
+      ${cats.map(c => `<span class="chip ${S.cat === c ? 'on' : ''}" onclick="S.cat='${esc(c)}';render()">${esc(c)}</span>`).join('')}
+    </div>
+  </div>
+  ${usados.length ? `<div class="card"><div class="hd"><h2>Você pede sempre</h2></div>
+    <div>${usados.map(linhaItem).join('')}</div></div>` : ''}
+  <div class="card" style="margin-top:12px"><div class="hd"><h2>${S.cat || 'Todos os materiais'}</h2>
+    <span class="tag t-n">${lista.length}</span></div>
+    <div id="lista">${lista.length ? lista.map(linhaItem).join('') : '<div class="empty"><p>Nada encontrado.</p></div>'}</div>
+  </div>`;
+}
+function renderLista() {
+  const itens = S.catalogo.itens || [], b = norm(S.busca);
+  const lista = itens.filter(i => (!b || norm(i.desc).includes(b)) && (!S.cat || i.cat === S.cat));
+  const el = document.getElementById('lista');
+  if (el) el.innerHTML = lista.length ? lista.map(linhaItem).join('') : '<div class="empty"><p>Nada encontrado.</p></div>';
+}
+function linhaItem(i) {
+  const q = S.cesto[i.k] || 0;
+  return `<div class="item ${q ? 'sel' : ''}" id="it-${esc(i.k)}">
+    <div class="in"><b>${esc(i.desc)}</b><span>${esc(i.un || 'UN')}${i.cat ? ' · ' + esc(i.cat) : ''}</span></div>
+    <div class="step">
+      ${q ? `<button onclick="mudarQtd('${esc(i.k)}',-1)" aria-label="tirar um">−</button>
+        <input class="q" inputmode="numeric" value="${q}" onchange="porQtd('${esc(i.k)}',this.value);render()" aria-label="quantidade">
+        <button onclick="mudarQtd('${esc(i.k)}',1)" aria-label="somar um">+</button>`
+      : `<button class="add" onclick="mudarQtd('${esc(i.k)}',1)">Pedir</button>`}
+    </div></div>`;
+}
+
+/* ---------- resumo antes de enviar ---------- */
+function abrirResumo() {
+  const it = itensCesto();
+  $('#sheet').innerHTML = `<div class="sheet" onclick="if(event.target===this)fecharSheet()">
+    <div class="box"><div class="grab"></div>
+      <div class="hd"><h2>Conferir pedido</h2><span class="tag t-a">${totalCesto()} peças</span></div>
+      <div class="bd">
+        ${it.map(i => `<div class="item">
+          <div class="in"><b>${esc(i.desc)}</b><span>${esc(i.un || 'UN')}</span></div>
+          <div class="step">
+            <button onclick="mudarQtd('${esc(i.k)}',-1);abrirResumo()">−</button>
+            <span class="q" style="line-height:40px">${i.qtd}</span>
+            <button onclick="mudarQtd('${esc(i.k)}',1);abrirResumo()">+</button></div></div>`).join('')}
+        <label class="fl" style="margin-top:16px">Observação para o almoxarifado</label>
+        <textarea id="obs" rows="2" placeholder="Ex.: preciso ainda hoje, é para a OS 12345">${esc(S.obs)}</textarea>
+      </div>
+      <div class="ft">
+        <button class="btn" onclick="fecharSheet()" style="flex:0 0 auto">Voltar</button>
+        <button class="btn a" style="flex:1" onclick="S.obs=document.getElementById('obs').value;enviarPedido()">Enviar pedido</button>
+      </div></div></div>`;
+  document.body.style.overflow = 'hidden';
+}
+function fecharSheet() { $('#sheet').innerHTML = ''; document.body.style.overflow = ''; }
+
+/* ---------- meus pedidos ---------- */
+const ROTULO = { 'NA FILA': 'aguardando sinal', ENVIANDO: 'enviando', PENDENTE: 'recebido pelo almoxarifado',
+  SEPARANDO: 'sendo separado', PRONTO: 'pronto para retirar', ENTREGUE: 'entregue — confirme o recebimento', CONFIRMADO: 'confirmado' };
+const COR = { 'NA FILA': 't-w', ENVIANDO: 't-n', PENDENTE: 't-i', SEPARANDO: 't-i', PRONTO: 't-a', ENTREGUE: 't-w', CONFIRMADO: 't-ok' };
+function telaMeus() {
+  const l = S.pedidos;
+  if (!l.length) return `<div class="empty"><h3>Nenhum pedido ainda</h3>
+    <p>Os pedidos que você mandar aparecem aqui com o andamento.</p>
+    <button class="btn a" onclick="irAba('pedir')">Fazer um pedido</button></div>`;
+  return `<div class="card"><div class="hd"><h2>Meus pedidos</h2><div style="flex:1"></div>
+    <button class="btn sm" onclick="baixarPedidos()">Atualizar</button></div>
+    <div>${l.map(p => {
+      const st = p.status || 'PENDENTE';
+      return `<div class="ped ${esc(st)}">
+        <div class="top"><b>${esc(p.id)}</b>
+          <span style="font-size:12.5px;color:var(--txt-2)">${brDia(p.criado_em)} ${brHora(p.criado_em)}</span>
+          <div style="flex:1"></div><span class="tag ${COR[st] || 't-n'}">${esc(ROTULO[st] || st)}</span></div>
+        <ul>${p.itens.map(i => `<li>${fmt(i.qtd)} ${esc(i.un || '')} — ${esc(i.desc)}</li>`).join('')}</ul>
+        ${p.obs ? `<div style="font-size:13px;color:var(--txt-2);margin-top:6px">“${esc(p.obs)}”</div>` : ''}
+        ${st === 'ENTREGUE' ? `<button class="btn a w sm" style="margin-top:10px" onclick="confirmarRecebimento('${esc(p.id)}')">Confirmar que recebi</button>` : ''}
+        ${st === 'CONFIRMADO' ? `<div style="font-size:12.5px;color:var(--ok);margin-top:6px">Recebido em ${brDia(p.confirmado_em)} às ${brHora(p.confirmado_em)}</div>` : ''}
+        ${['CONFIRMADO', 'ENTREGUE'].includes(st) ? `<button class="btn w sm" style="margin-top:8px" onclick="repetirPedido('${esc(p.id)}')">Pedir de novo</button>` : ''}
+      </div>`;
+    }).join('')}</div></div>`;
+}
+
+/* ---------- ajustes ---------- */
+function telaConf() {
+  return `<div class="card"><div class="hd"><h2>Ajustes</h2></div><div class="bd">
+    <label class="fl">Seu nome</label><div style="font-weight:600;margin-bottom:14px">${esc(S.tec)}</div>
+    <label class="fl">Materiais na lista</label>
+    <div style="margin-bottom:4px">${(S.catalogo.itens || []).length} itens</div>
+    <div style="font-size:12.5px;color:var(--txt-2);margin-bottom:14px">Atualizada em ${esc(S.catalogo.atualizado ? brDia(S.catalogo.atualizado) + ' ' + brHora(S.catalogo.atualizado) : 'nunca')}</div>
+    <button class="btn a w" onclick="baixarCatalogo(1)">Atualizar lista de materiais</button>
+    ${S.fila.length ? `<button class="btn w" style="margin-top:10px" onclick="enviarFila()">Enviar ${S.fila.length} pedido(s) da fila</button>` : ''}
+    <button class="btn w" style="margin-top:10px" onclick="S.tec='';salvar();render()">Trocar de usuário</button>
+    <button class="btn w dg" style="margin-top:10px" onclick="if(confirm('Isso apaga a configuração deste celular. Continuar?')){S.url='';S.tec='';S.cesto={};salvar();render()}">Desconectar do almoxarifado</button>
+    <p style="font-size:12.5px;color:var(--txt-2);margin-top:16px">Sem sinal o pedido não se perde: fica guardado no celular e sobe sozinho quando a conexão voltar.</p>
+  </div></div>`;
+}
+
+/* ---------- início ---------- */
+render();
+if (S.url) { baixarCatalogo(); if (S.tec) baixarPedidos(); }
+enviarFila();
+setInterval(() => { if (online && S.url && S.tec) { enviarFila(); if (S.aba === 'meus') baixarPedidos(); } }, 45000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.url && S.tec) { enviarFila(); baixarPedidos(); } });
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

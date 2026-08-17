@@ -1,0 +1,19 @@
+{
+  "name": "Pedido de Material — Almoxarifado",
+  "short_name": "Pedido",
+  "start_url": "tecnico.html",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#070A1C",
+  "theme_color": "#070A1C",
+  "orientation": "portrait",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "icone.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
